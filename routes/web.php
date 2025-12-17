@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,5 +36,16 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+Route::middleware('auth')->group(function () {
+    Route::get('/become-vendor', [VendorController::class, 'create']);
+    Route::post('/become-vendor', [VendorController::class, 'store']);
+});
+
+Route::middleware(['auth', 'role:vendor'])->group(function () {
+    Route::get('/vendor/dashboard', fn () => view('vendor.dashboard'));
+    Route::get('/store/{slug}', [StoreController::class, 'show']);
+
+});
+
 
 require __DIR__.'/auth.php';

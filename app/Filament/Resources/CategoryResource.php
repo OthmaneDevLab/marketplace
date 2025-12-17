@@ -4,23 +4,21 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Store;
+use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\StoreResource\Pages;
+use App\Filament\Resources\CategoryResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\StoreResource\RelationManagers;
+use App\Filament\Resources\CategoryResource\RelationManagers;
 
-class StoreResource extends Resource
+class CategoryResource extends Resource
 {
-    protected static ?string $model = Store::class;
+    protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -28,11 +26,6 @@ class StoreResource extends Resource
 {
     return $form
         ->schema([
-            Select::make('vendor_id')
-                ->relationship('vendor.user', 'name')
-                ->searchable()
-                ->required(),
-
             TextInput::make('name')
                 ->required()
                 ->live(onBlur: true)
@@ -43,10 +36,6 @@ class StoreResource extends Resource
             TextInput::make('slug')
                 ->required()
                 ->unique(ignoreRecord: true),
-
-            Textarea::make('description')
-                ->rows(3)
-                ->nullable(),
         ]);
 }
 
@@ -63,9 +52,6 @@ class StoreResource extends Resource
 
             TextColumn::make('slug')
                 ->searchable(),
-
-            TextColumn::make('vendor.user.name')
-                ->label('Vendor'),
 
             TextColumn::make('created_at')
                 ->dateTime(),
@@ -89,9 +75,9 @@ class StoreResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStores::route('/'),
-            'create' => Pages\CreateStore::route('/create'),
-            'edit' => Pages\EditStore::route('/{record}/edit'),
+            'index' => Pages\ListCategories::route('/'),
+            'create' => Pages\CreateCategory::route('/create'),
+            'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
     }
 }

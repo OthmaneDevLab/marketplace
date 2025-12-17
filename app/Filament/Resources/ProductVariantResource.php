@@ -4,23 +4,21 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Store;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
+use App\Models\ProductVariant;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\StoreResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\StoreResource\RelationManagers;
+use App\Filament\Resources\ProductVariantResource\Pages;
+use App\Filament\Resources\ProductVariantResource\RelationManagers;
 
-class StoreResource extends Resource
+class ProductVariantResource extends Resource
 {
-    protected static ?string $model = Store::class;
+    protected static ?string $model = ProductVariant::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -28,27 +26,28 @@ class StoreResource extends Resource
 {
     return $form
         ->schema([
-            Select::make('vendor_id')
-                ->relationship('vendor.user', 'name')
+            Select::make('product_id')
+                ->relationship('product', 'name')
                 ->searchable()
+                ->preload()
                 ->required(),
 
             TextInput::make('name')
                 ->required()
-                ->live(onBlur: true)
-                ->afterStateUpdated(fn ($state, callable $set) =>
-                    $set('slug', Str::slug($state))
-                ),
+                ->maxLength(255),
 
-            TextInput::make('slug')
-                ->required()
-                ->unique(ignoreRecord: true),
-
-            Textarea::make('description')
-                ->rows(3)
+            TextInput::make('price')
+                ->numeric()
+                ->step(0.01)
                 ->nullable(),
+
+            TextInput::make('stock')
+                ->numeric()
+                ->default(0)
+                ->required(),
         ]);
 }
+
 
    public static function table(Table $table): Table
 {
@@ -57,15 +56,20 @@ class StoreResource extends Resource
             TextColumn::make('id')
                 ->sortable(),
 
-            TextColumn::make('name')
-                ->searchable()
-                ->sortable(),
-
-            TextColumn::make('slug')
+            TextColumn::make('product.name')
+                ->label('Product')
                 ->searchable(),
 
-            TextColumn::make('vendor.user.name')
-                ->label('Vendor'),
+            TextColumn::make('name')
+                ->label('Variant')
+                ->searchable(),
+
+            TextColumn::make('price')
+                ->money('USD') // غيّر العملة لو تحب
+                ->sortable(),
+
+            TextColumn::make('stock')
+                ->sortable(),
 
             TextColumn::make('created_at')
                 ->dateTime(),
@@ -89,9 +93,9 @@ class StoreResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStores::route('/'),
-            'create' => Pages\CreateStore::route('/create'),
-            'edit' => Pages\EditStore::route('/{record}/edit'),
+            'index' => Pages\ListProductVariants::route('/'),
+            'create' => Pages\CreateProductVariant::route('/create'),
+            'edit' => Pages\EditProductVariant::route('/{record}/edit'),
         ];
     }
 }
