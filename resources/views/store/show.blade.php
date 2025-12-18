@@ -1,2 +1,0 @@
-<h1>{{ $store->name }}</h1>
-<p>{{ $store->description }}</p>

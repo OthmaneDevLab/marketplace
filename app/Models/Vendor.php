@@ -23,4 +23,10 @@ public function store()
     return $this->hasOne(Store::class);
 }
 
+
+public function orderItems()
+{
+    return $this->hasMany(OrderItem::class);
+}
+
 }
