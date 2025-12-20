@@ -95,7 +95,7 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor/dashboard', fn() => view('vendor.dashboard'));
 
     Route::get('/vendor/orders', [VendorOrderController::class, 'index']);
-    Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
+    Route::get('/vendor/stores', [StoreController::class, 'index'])->name('stores.index');
     Route::get('/stores/{store}', [StoreController::class, 'show'])->name('stores.show');
 
 });

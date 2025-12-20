@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
+
 class CartController extends Controller
 {
     public function index()
@@ -27,6 +28,8 @@ class CartController extends Controller
                 "quantity" => $quantity
             ];
         }
+
+      
 
         session()->put('cart', $cart);
         return redirect()->back()->with('message', 'Product added to cart!');

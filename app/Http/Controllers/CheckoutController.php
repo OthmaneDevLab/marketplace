@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use App\Events\NewNotification;
+use Illuminate\Support\Facades\Auth;
 use Stripe\Checkout\Session as StripeSession;
 
 class CheckoutController extends Controller
@@ -15,6 +17,10 @@ class CheckoutController extends Controller
     public function  store(Request $request)
     {
         $cart = session()->get('cart');
+
+    if (!$cart || count($cart) === 0) {
+        return redirect('/cart')->with('error', 'Your cart is empty');
+    }
 
         $stripe = new \Stripe\StripeClient(env("STRIPE_SECRET"));
        $charge = $stripe->charges->create([
@@ -30,17 +36,31 @@ class CheckoutController extends Controller
             'status' => 'paid',
         ]);
 
-        foreach ($cart as $productId => $item) {
-            $product = Product::findOrFail($productId);
+       foreach ($cart as $productId => $item) {
 
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $product->id,
-                'vendor_id' => $product->store->vendor->id,
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ]);
-        }
+    $product = Product::findOrFail($productId);
+
+    OrderItem::create([
+        'order_id'   => $order->id,
+        'product_id' => $product->id,
+        'vendor_id'  => $product->store->vendor->id,
+        'quantity'   => $item['quantity'],
+        'price'      => $item['price'],
+    ]);
+
+    event(new NewNotification([
+        'user_id'      => $product->store->vendor->id,
+        'product_name' => $product->name,
+    
+    ]));
+}
+
+//          $data = [
+//     'user_id' =>  auth()->id(),
+//     'product_name' => $product->name,
+// ];
+
+// event(new NewNotification($data));
 
         session()->forget('cart');
 
